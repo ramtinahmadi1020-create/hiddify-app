@@ -55,6 +55,38 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
   final ConfigOptionRepository _configOptionRepo;
   final ProfileParser _profileParser;
 
+  // --- لیست کانفیگ‌های پیش‌فرض که خودت دادی ---
+  final List<String> _defaultConfigs = [
+    'vless://d3b7c9a2-1234-5678-9abc-def012345678@proxy-1555869700.ghost109test.workers.dev:443?encryption=none&security=tls&sni=proxy-1555869700.ghost109test.workers.dev&fp=randomized&type=ws&host=proxy-1555869700.ghost109test.workers.dev&path=%2F%3Fed%3D2048#server_1',
+    'vless://d3b7c9a2-1234-5678-9abc-def012345678@proxy-1555hfne12.kmxgamer01.workers.dev:443?encryption=none&security=tls&sni=proxy-1555hfne12.kmxgamer01.workers.dev&fp=randomized&type=ws&host=proxy-1555hfne12.kmxgamer01.workers.dev&path=%2F%3Fed%3D2048#server_2',
+    'vless://d3b7c9a2-1234-5678-9abc-def012345678@proxybehsj2789.infinityfreew3.workers.dev:443?encryption=none&security=tls&sni=proxybehsj2789.infinityfreew3.workers.dev&fp=randomized&type=ws&host=proxybehsj2789.infinityfreew3.workers.dev&path=%2F%3Fed%3D2048#server_3',
+    'vless://d3b7c9a2-1234-5678-9abc-def012345678@proxykoojbbbb45.gggfjosoz.workers.dev:443?encryption=none&security=tls&sni=proxykoojbbbb45.gggfjosoz.workers.dev&fp=randomized&type=ws&host=proxykoojbbbb45.gggfjosoz.workers.dev&path=%2F%3Fed%3D2048#server_4',
+    'vless://d3b7c9a2-1234-5678-9abc-def012345678@proxyviivigigviivv.gxgxhg56.workers.dev:443?encryption=none&security=tls&sni=proxyviivigigviivv.gxgxhg56.workers.dev&fp=randomized&type=ws&host=proxyviivigigviivv.gxgxhg56.workers.dev&path=%2F%3Fed%3D2048#server_5',
+  ];
+
+  // متدی برای اضافه کردن خودکار کانفیگ‌ها
+  Future<void> _addDefaultConfigs() async {
+    try {
+      // گرفتن لیست پروفایل‌های موجود برای جلوگیری از تکراری شدن
+      final existingProfilesResult = await _profileDataSource.watchAll().first;
+      final existingNames = existingProfilesResult.fold<List<String>>(
+        [], 
+        (prev, element) => prev..addAll(element.toEntity().map((e) => e.name))
+      );
+
+      for (final config in _defaultConfigs) {
+        // استخراج اسم از انتهای کانفیگ (بعد از #)
+        final name = config.split('#').last;
+        if (!existingNames.contains(name)) {
+          await addLocal(config).run();
+          loggy.info('Default config $name added successfully.');
+        }
+      }
+    } catch (e, stackTrace) {
+      loggy.error('Error adding default configs', e, stackTrace);
+    }
+  }
+
   @override
   TaskEither<ProfileFailure, Unit> init() {
     return exceptionHandler(() async {
@@ -63,6 +95,9 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
           await _profilePathResolver.directory.create(recursive: true);
         }
       }
+
+      // --- فراخوانی متد اضافه کردن کانفیگ‌های پیش‌فرض ---
+      await _addDefaultConfigs();
 
       return right(unit);
     }, ProfileUnexpectedFailure.new);
