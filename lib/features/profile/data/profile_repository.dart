@@ -78,7 +78,9 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
         // استخراج اسم از انتهای کانفیگ (بعد از #)
         final name = config.split('#').last;
         if (!existingNames.contains(name)) {
-          await addLocal(config).run();
+          // --- اینجا از UserOverride استفاده می‌کنیم ---
+          final userOverride = UserOverride(name: name);
+          await addLocal(config, userOverride: userOverride).run();
           loggy.info('Default config $name added successfully.');
         }
       }
