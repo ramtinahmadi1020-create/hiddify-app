@@ -17,7 +17,7 @@ class _LicenseScreenState extends State<LicenseScreen> {
   Duration? _remainingTime;
 
   // 🔑 رمز لایسنس دلخواه خودت رو اینجا بذار
-  static const String _validKey = "MY-VPN-2026-SECRET";
+  static const String _validKey = "RAMTIN-VPN-2026";
 
   @override
   void initState() {
