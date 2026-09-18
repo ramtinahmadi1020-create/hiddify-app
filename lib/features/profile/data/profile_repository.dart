@@ -68,15 +68,15 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
   Future<void> _addDefaultConfigs() async {
     try {
       // گرفتن لیست پروفایل‌های موجود برای جلوگیری از تکراری شدن
-      // ⚠️ خط ۷۱ اصلاح شد: اضافه کردن پارامترهای sort و sortMode
       final existingProfilesResult = await _profileDataSource.watchAll(
         sort: ProfilesSort.lastUpdate, 
         sortMode: SortMode.ascending
       ).first;
 
+      // ⚠️ اصلاح خط ۷۹: استفاده از add به جای addAll و map
       final existingNames = existingProfilesResult.fold<List<String>>(
         [], 
-        (prev, element) => prev..addAll(element.toEntity().map((e) => e.name))
+        (prev, element) => prev..add(element.toEntity().name)
       );
 
       for (final config in _defaultConfigs) {
