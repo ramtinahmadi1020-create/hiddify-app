@@ -7,6 +7,8 @@ on:
 
 env:
   FLUTTER_VERSION: '3.38.5'
+  ANDROID_HOME: /usr/local/lib/android/sdk
+  ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
 
 jobs:
   build-android:
@@ -21,15 +23,15 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2.21.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+
+      - name: Configure Flutter to use Android SDK
+        run: flutter config --android-sdk $ANDROID_HOME
 
       - name: Clean up disk space
         run: |
@@ -82,5 +84,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v6
         with:
-          name: Ra-APK
+          name: MyVpn-APK
           path: ./out
