@@ -30,4 +30,4 @@ targets:
       #     out_dir: "lib/gen/proto"
       #     use_installed_protoc: true
       #     precompile_protoc_plugin: false
-      #.    hello
+      #     hello
