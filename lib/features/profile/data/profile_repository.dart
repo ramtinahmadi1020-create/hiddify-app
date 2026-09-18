@@ -68,7 +68,12 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
   Future<void> _addDefaultConfigs() async {
     try {
       // گرفتن لیست پروفایل‌های موجود برای جلوگیری از تکراری شدن
-      final existingProfilesResult = await _profileDataSource.watchAll().first;
+      // ⚠️ خط ۷۱ اصلاح شد: اضافه کردن پارامترهای sort و sortMode
+      final existingProfilesResult = await _profileDataSource.watchAll(
+        sort: ProfilesSort.lastUpdate, 
+        sortMode: SortMode.ascending
+      ).first;
+
       final existingNames = existingProfilesResult.fold<List<String>>(
         [], 
         (prev, element) => prev..addAll(element.toEntity().map((e) => e.name))
@@ -78,7 +83,7 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
         // استخراج اسم از انتهای کانفیگ (بعد از #)
         final name = config.split('#').last;
         if (!existingNames.contains(name)) {
-          // --- اینجا از UserOverride استفاده می‌کنیم ---
+          // --- استفاده از UserOverride ---
           final userOverride = UserOverride(name: name);
           await addLocal(config, userOverride: userOverride).run();
           loggy.info('Default config $name added successfully.');
